@@ -1,12 +1,10 @@
 import re
 import numpy as np
 import pandas as pd
-
 import nltk
 
 # plotting
 import seaborn as sns
-from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 # sklearn
