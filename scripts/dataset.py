@@ -1,6 +1,8 @@
+
 ## This file deals with importing dataset and subsequent cleaning and organizing of df
 
 #Importing necessary libraries
+
 import re
 import numpy as np
 import pandas as pd
@@ -14,6 +16,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import confusion_matrix, classification_report
+
 
 #Dataset comes from Kaggle: 'Sentiment140 dataset with 1.6 million tweets'
 #https://www.kaggle.com/datasets/kazanova/sentiment140?resource=download
@@ -50,5 +53,6 @@ df_pos = df[df['target'] == 1].iloc[:200000]
 df_neg = df[df['target'] == 0].iloc[:200000]
 df = pd.concat([df_pos, df_neg], axis = 0)
 print(df.shape)
+
 
 
