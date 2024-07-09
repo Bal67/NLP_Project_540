@@ -93,4 +93,5 @@ if __name__ == "__main__":
     path = '/Users/britt/Documents/Kaggle/training.1600000.processed.noemoticon.csv'  # Update with the correct path
     df = load_dataset(path)
     df = preprocess_dataset(df)
-    print(df.head())
+    df.to_csv('/content/drive/MyDrive/TextSentiment/NLP_Project_540/data/preprocessed_dataset.csv', index=False) #Update to your own Google Drive folder path
+    print("Preprocessed data saved to ../data/preprocessed/preprocessed_dataset.csv")
