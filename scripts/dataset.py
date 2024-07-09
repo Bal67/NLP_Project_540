@@ -89,4 +89,8 @@ def preprocess_dataset(df):
 
     return df
 
-
+if __name__ == "__main__":
+    path = '/Users/britt/Documents/Kaggle/training.1600000.processed.noemoticon.csv'  # Update with the correct path
+    df = load_dataset(path)
+    df = preprocess_dataset(df)
+    print(df.head())
