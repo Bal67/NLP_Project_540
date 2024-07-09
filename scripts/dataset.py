@@ -6,6 +6,8 @@ import re
 import numpy as np
 import pandas as pd
 import nltk
+from nltk.stem import SnowballStemmer
+from nltk.stem import WordNetLemmatizer
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -24,11 +26,40 @@ from sklearn.metrics import confusion_matrix, classification_report
 #Importing path to CSV datafile
 #path = '/Users/britt/Documents/Kaggle/training.1600000.processed.noemoticon.csv' #Replace with your own path to CSV data file downloaded from Kaggle
 
+#Uncomment these if the packages are not downloaded on your local computer
+#nltk.download('stopwords')
+#nltk.download('punkt')
+
 def load_dataset(path):
     """Load the dataset from the given path."""
     df = pd.read_csv(path, header=None, encoding='latin-1')
     return df
 
+# Define stop words and stemmer
+stop_words = nltk.corpus.stopwords.words('english')
+stemmer = SnowballStemmer('english')
+
+# Define text cleaning regex
+text_cleaning_re = r"@\S+|https?:\S+|http?:\S|[^A-Za-z0-9\s]+"
+
+def tweet_cleaner(text):
+    """Basic text cleaning by removing hyperlinks, stopwords, and applying stemming."""
+    text = re.sub(text_cleaning_re,'', str(text).lower()).strip()
+    tokens = [stemmer.stem(word) for word in text.split() if word not in stop_words and len(word) >= 3]
+    return " ".join(tokens)
+
+
+def get_time_of_day(time):
+    """Classify time into time of day."""
+    hour = time.hour
+    if 5 <= hour < 12:
+        return 'morning'
+    elif 12 <= hour < 17:
+        return 'afternoon'
+    elif 17 <= hour < 21:
+        return 'evening'
+    else:
+        return 'night'
 
 def preprocess_dataset(df):
     """Preprocess the dataset by renaming columns, converting dates, and reducing size."""
@@ -39,17 +70,23 @@ def preprocess_dataset(df):
     
     # Converting date to datetime
     df['date'] = pd.to_datetime(df['date'])
+
+    #Creating columns that separate the date from the time
+    df['date_only'] = df['date'].dt.strftime('%Y-%m-%d')
+    df['time_only'] = df['date'].dt.strftime('%H:%M:%S')
     
-    # Cutting down dataset by 3/4 due to large size
+    # Classifying date by season and time by time of day
+    df['time_of_day'] = df['date'].apply(get_time_of_day)
+    
+    # Cutting down dataset by random 3/4 due to large size
     df_pos = df[df['target'] == 1].iloc[:200000]
     df_neg = df[df['target'] == 0].iloc[:200000]
     df = pd.concat([df_pos, df_neg], axis=0)
-    
+
+    #Apply Tweet Cleaning function to the 'tweet' column
+    df['cleaned_tweet'] = df['tweet'].apply(tweet_cleaner)
+
+
     return df
-
-
-def sample_data(df, n=6):
-    """Sample the dataframe."""
-    return df.sample(n)
 
 
