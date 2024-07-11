@@ -10,9 +10,8 @@ import joblib
 
 def train_naive_model():
     # Load and preprocess dataset
-    path = '/Users/britt/Documents/Kaggle/training.1600000.processed.noemoticon.csv'  # Update with the correct path
-    df = load_dataset(path)
-    df = preprocess_dataset(df)
+    path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/data/preprocessed/preprocessed_dataset.csv'  # Update with the correct path
+    df = pd.read_csv(path)
 
     X = df['cleaned_tweet']
     y = df['target']
@@ -25,15 +24,22 @@ def train_naive_model():
     
     model = MultinomialNB()
     model.fit(X_train, y_train)
-    
-    joblib.dump(model, 'naive_model.joblib')
-    joblib.dump(vectorizer, 'vectorizer.joblib')
+
+    # Evaluate the model on the validation set
+    y_val_pred = model.predict(X_val)
+    print(f'Validation Accuracy: {accuracy_score(y_val, y_val_pred)}')
+    print(classification_report(y_val, y_val_pred))
 
     # Evaluate the model on the test set
     y_pred = model.predict(X_test)
     print(f'Naive Bayes Model Accuracy: {accuracy_score(y_test, y_pred)}')
     print(classification_report(y_test, y_pred))
 
+    
+    joblib.dump(model, '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/naive_model.joblib')
+    joblib.dump(vectorizer, '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/vectorizer.joblib')
+
+   
     return model, vectorizer
 
 if __name__ == "__main__":

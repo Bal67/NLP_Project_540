@@ -12,9 +12,8 @@ sys.path.insert(0, '/content/drive/MyDrive/TextSentiment/NLP_Project_540/scripts
 
 def train_nlp_model():
     # Load and preprocess dataset
-    path = '/Users/britt/Documents/Kaggle/training.1600000.processed.noemoticon.csv'  # Update with the correct path
-    df = load_dataset(path)
-    df = preprocess_dataset(df)
+    path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/data/preprocessed/preprocessed_dataset.csv'  # Update with the correct path
+    df = pd.read_csv(path)
 
     X = df['cleaned_tweet']
     y = df['target']
@@ -37,7 +36,7 @@ def train_nlp_model():
     
     model.fit(X_train, y_train, epochs=5, batch_size=64, validation_data=(X_val, y_val), verbose=2)
     
-    model.save('nlp_model.h5')
+    model.save('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_model.h5')
 
     # Evaluate the model on the test set
     y_pred = (model.predict(X_test) > 0.5).astype("int32")
