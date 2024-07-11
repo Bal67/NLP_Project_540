@@ -12,6 +12,9 @@ def train_naive_model():
     path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/data/preprocessed_dataset.csv'  # Update with the correct path
     df = pd.read_csv(path)
 
+    # Ensure there are no NaN values
+    df = df.dropna(subset=['cleaned_tweet'])
+    
     X = df['cleaned_tweet']
     y = df['target']
     
