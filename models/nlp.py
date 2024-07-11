@@ -12,7 +12,7 @@ sys.path.insert(0, '/content/drive/MyDrive/TextSentiment/NLP_Project_540/scripts
 
 def train_nlp_model():
     # Load and preprocess dataset
-    path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/data/preprocessed/preprocessed_dataset.csv'  # Update with the correct path
+    path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/data/preprocessed_dataset.csv'  # Update with the correct path
     df = pd.read_csv(path)
 
     X = df['cleaned_tweet']
