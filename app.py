@@ -9,10 +9,12 @@ def load_model_and_tokenizer():
     try:
         # Load the TensorFlow model
         model = load_model('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_model.h5')
+        st.write("Model loaded successfully.")
         
         # Load the tokenizer
         with open('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_tokenizer.pkl', 'rb') as handle:
             tokenizer = pickle.load(handle)
+        st.write("Tokenizer loaded successfully.")
         
         return model, tokenizer
     except Exception as e:
@@ -26,7 +28,9 @@ model, tokenizer = load_model_and_tokenizer()
 def preprocess_text(text):
     try:
         text_seq = tokenizer.texts_to_sequences([text])
+        st.write(f"Text sequences: {text_seq}")
         text_padded = pad_sequences(text_seq, maxlen=100)
+        st.write(f"Text padded: {text_padded}")
         return text_padded
     except Exception as e:
         st.error(f"Error preprocessing text: {e}")
@@ -40,6 +44,7 @@ def predict_sentiment(text):
 
     try:
         prediction = model.predict(preprocessed_text)
+        st.write(f"Raw prediction: {prediction}")
         return prediction[0][0]
     except Exception as e:
         st.error(f"Error predicting sentiment: {e}")
@@ -54,6 +59,7 @@ time_of_day = st.selectbox("Select the time of day:", ["Morning", "Afternoon", "
 
 if st.button("Predict Sentiment"):
     if text_input:
+        st.write("Input text received.")
         prediction = predict_sentiment(text_input)
         if prediction is not None:
             sentiment = "Positive" if prediction > 0.5 else "Negative"
