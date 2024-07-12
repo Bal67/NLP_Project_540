@@ -5,33 +5,41 @@ import joblib
 
 @st.cache_resource
 def load_model_and_vectorizer():
-    # Load the Naive Bayes model
-    model = joblib.load('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/naive_model.joblib')
-    
-    # Load the TF-IDF vectorizer
-    vectorizer = joblib.load('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/vectorizer.joblib')
-    
-    return model, vectorizer
+    try:
+        # Load the Naive Bayes model
+        model = joblib.load('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/naive_model.joblib')
+        
+        # Load the TF-IDF vectorizer
+        vectorizer = joblib.load('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/vectorizer.joblib')
+        
+        return model, vectorizer
+    except Exception as e:
+        st.error(f"Error loading models: {e}")
+        return None, None
 
 # Load model and vectorizer only once
 model, vectorizer = load_model_and_vectorizer()
 
 # Function to preprocess input text for the Naive Bayes model
 def preprocess_text(text):
-    return vectorizer.transform([text])
+    try:
+        return vectorizer.transform([text])
+    except Exception as e:
+        st.error(f"Error preprocessing text: {e}")
+        return None
 
 # Function to predict sentiment
 def predict_sentiment(text):
+    preprocessed_text = preprocess_text(text)
+    if preprocessed_text is None:
+        return None
+
     try:
-        st.write("Preprocessing text...")
-        preprocessed_text = preprocess_text(text)
-        st.write("Predicting sentiment...")
         prediction = model.predict(preprocessed_text)
-        st.write("Prediction complete.")
         return prediction[0]
     except Exception as e:
-        st.error(f"Error in predict_sentiment: {e}")
-        raise
+        st.error(f"Error predicting sentiment: {e}")
+        return None
 
 # Streamlit application
 st.title("Sentiment Analysis Application")
@@ -42,11 +50,31 @@ time_of_day = st.selectbox("Select the time of day:", ["Morning", "Afternoon", "
 
 if st.button("Predict Sentiment"):
     if text_input:
-        try:
-            prediction = predict_sentiment(text_input)
+        prediction = predict_sentiment(text_input)
+        if prediction is not None:
             sentiment = "Positive" if prediction == 1 else "Negative"
             st.write(f"### Naive Bayes Model Prediction: {sentiment}")
-        except Exception as e:
-            st.error(f"An error occurred during prediction: {e}")
+        else:
+            st.error("Prediction failed.")
     else:
         st.error("Please enter some text to analyze.")
+
+# Make the app visually attractive
+st.markdown("""
+    <style>
+    .reportview-container {
+        background: linear-gradient(to right, #ffffff, #e6e6e6);
+        color: #000000;
+    }
+    .sidebar .sidebar-content {
+        background: #f0f0f5;
+    }
+    .stButton>button {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .stButton>button:hover {
+        background-color: #45a049;
+    }
+    </style>
+    """, unsafe_allow_html=True)
