@@ -2,10 +2,9 @@ import sys
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
-from tensorflow.keras.models import Sequential
+from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Embedding, Dense, SpatialDropout1D, LSTM, Input, Concatenate
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.models import Model
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 import numpy as np
@@ -40,8 +39,8 @@ def train_nlp_model():
     X_train_time, X_temp_time = train_test_split(X_time, test_size=0.4, random_state=42)
     X_val_time, X_test_time = train_test_split(X_temp_time, test_size=0.5, random_state=42)
     
-    input_text = Input(shape=(100,))
-    input_time = Input(shape=(1,))
+    input_text = Input(shape=(100,), name='input_text')
+    input_time = Input(shape=(1,), name='input_time')
     
     embedding = Embedding(5000, 128, input_length=100)(input_text)
     dropout = SpatialDropout1D(0.2)(embedding)
