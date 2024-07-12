@@ -3,15 +3,18 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Embedding, Dense, SpatialDropout1D, LSTM, Bidirectional
+from tensorflow.keras.layers import Embedding, Dense, SpatialDropout1D, LSTM
 from tensorflow.keras.optimizers import Adam
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
-from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 import pickle
 import os
 import numpy as np
+import tensorflow as tf
 
+# Suppress TensorFlow warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.insert(0, '/content/drive/MyDrive/TextSentiment/NLP_Project_540/scripts/dataset.py')
 MODEL_FILE = "/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_model.h5"
 EMBEDDING_FILE = 'glove.6B.100d.txt'
@@ -42,6 +45,7 @@ def train_nlp_model():
 
     # Ensure all entries in 'cleaned_tweet' are strings and handle missing values
     df['cleaned_tweet'] = df['cleaned_tweet'].astype(str).fillna('')
+    df = df.sample(frac=0.05, random_state=42)  # Use 5% of the data for testing
 
     X = df['cleaned_tweet']
     y = df['target']
@@ -64,15 +68,16 @@ def train_nlp_model():
                         input_length=100,
                         trainable=False))
     model.add(SpatialDropout1D(0.2))
-    model.add(Bidirectional(LSTM(64, dropout=0.2, recurrent_dropout=0.2)))
+    model.add(LSTM(32, dropout=0.2, recurrent_dropout=0.2))
     model.add(Dense(1, activation='sigmoid'))
     
     model.compile(loss='binary_crossentropy', optimizer=Adam(), metrics=['accuracy'])
     
-    # Implement EarlyStopping
+    # Implement EarlyStopping and ModelCheckpoint
     early_stopping = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
-    
-    model.fit(X_train, y_train, epochs=10, batch_size=64, validation_data=(X_val, y_val), verbose=2, callbacks=[early_stopping])
+    checkpoint = ModelCheckpoint(MODEL_FILE, monitor='val_loss', save_best_only=True, mode='min')
+
+    model.fit(X_train, y_train, epochs=5, batch_size=32, validation_data=(X_val, y_val), verbose=2, callbacks=[early_stopping, checkpoint])
 
     # Save the tokenizer to Google Drive
     tokenizer_save_path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_tokenizer.pkl'
@@ -83,11 +88,6 @@ def train_nlp_model():
     y_pred = (model.predict(X_test) > 0.5).astype("int32")
     print(f'NLP Model Accuracy: {accuracy_score(y_test, y_pred)}')
     print(classification_report(y_test, y_pred))
-
-    # Save the model to Google Drive
-    model.save(MODEL_FILE)
-        
-    return model, tokenizer
 
 if __name__ == "__main__":
     train_nlp_model()
