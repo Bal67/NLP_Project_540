@@ -11,6 +11,7 @@ from keras.preprocessing.text import Tokenizer
 import pickle
 
 sys.path.insert(0, '/content/drive/MyDrive/TextSentiment/NLP_Project_540/scripts/dataset.py')
+MODEL_FILE = "/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_model.h5"
 
 def train_nlp_model():
     # Load and preprocess dataset
@@ -38,10 +39,6 @@ def train_nlp_model():
     
     model.fit(X_train, y_train, epochs=5, batch_size=64, validation_data=(X_val, y_val), verbose=2)
     
-    #Save the model to Google Drive
-    model_save_path = ('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_model.h5')
-    model.save(model_save_path)
-
     # Save the tokenizer to Google Drive
     tokenizer_save_path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_tokenizer.pkl'
     with open(tokenizer_save_path, 'wb') as handle:
@@ -51,6 +48,9 @@ def train_nlp_model():
     y_pred = (model.predict(X_test) > 0.5).astype("int32")
     print(f'NLP Model Accuracy: {accuracy_score(y_test, y_pred)}')
     print(classification_report(y_test, y_pred))
+
+    #Save the model to Google Drive
+    model.save(MODEL_FILE)
         
     return model, tokenizer
 
