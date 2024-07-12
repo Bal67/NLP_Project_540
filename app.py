@@ -49,11 +49,17 @@ def predict_sentiment(text):
 st.title("Sentiment Analysis Application")
 st.write("This application predicts the sentiment of the input text using an NLP model.")
 
-text_input = st.text_area("Enter your text here:")
-time_of_day = st.selectbox("Select the time of day:", ["Morning", "Afternoon", "Evening", "Night"])
+# Initialize session state
+if "text_input" not in st.session_state:
+    st.session_state["text_input"] = ""
+if "time_of_day" not in st.session_state:
+    st.session_state["time_of_day"] = "Morning"
+
+# Text input and time of day selection
+text_input = st.text_area("Enter your text here:", value=st.session_state["text_input"])
+time_of_day = st.selectbox("Select the time of day:", ["Morning", "Afternoon", "Evening", "Night"], index=["Morning", "Afternoon", "Evening", "Night"].index(st.session_state["time_of_day"]))
 
 if st.button("Predict Sentiment"):
-
     # Save input values to session state
     st.session_state["text_input"] = text_input
     st.session_state["time_of_day"] = time_of_day
