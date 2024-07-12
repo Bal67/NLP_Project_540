@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from tensorflow.keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
-from keras.preprocessing.text import Tokenizer
 import pickle
 import joblib
 
@@ -42,9 +41,18 @@ def predict_sentiment(text):
     preprocessed_text_tf = preprocess_text_for_tf(text)
     preprocessed_text_nb = preprocess_text_for_nb(text)
     
-    prediction_1 = model_1.predict(preprocessed_text_tf)[0][0]
-    prediction_2 = model_2.predict(preprocessed_text_nb)[0]
-    
+    st.write(f"Shape of preprocessed_text_tf: {preprocessed_text_tf.shape}")
+    st.write(f"Shape of preprocessed_text_nb: {preprocessed_text_nb.shape}")
+
+    prediction_1 = model_1.predict(preprocessed_text_tf)
+    prediction_2 = model_2.predict(preprocessed_text_nb)
+
+    st.write(f"Prediction from model_1: {prediction_1}")
+    st.write(f"Prediction from model_2: {prediction_2}")
+
+    prediction_1 = prediction_1[0][0]
+    prediction_2 = prediction_2[0]
+
     return prediction_1, prediction_2
 
 # Streamlit application
