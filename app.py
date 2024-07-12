@@ -28,8 +28,9 @@ model, tokenizer = load_model_and_tokenizer()
 def preprocess_text(text):
     try:
         text_seq = tokenizer.texts_to_sequences([text])
+        st.write(f"Text sequences: {text_seq}")
         text_padded = pad_sequences(text_seq, maxlen=100)
-        st.write(f"Preprocessed text: {text_padded}")
+        st.write(f"Text padded: {text_padded}")
         return text_padded
     except Exception as e:
         st.error(f"Error preprocessing text: {e}")
@@ -58,6 +59,7 @@ time_of_day = st.selectbox("Select the time of day:", ["Morning", "Afternoon", "
 
 if st.button("Predict Sentiment"):
     if text_input:
+        st.write("Input text received.")
         prediction = predict_sentiment(text_input)
         if prediction is not None:
             sentiment = "Positive" if prediction > 0.5 else "Negative"
