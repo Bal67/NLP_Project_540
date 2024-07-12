@@ -5,33 +5,46 @@ from tensorflow.keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 import pickle
+import joblib
 
 @st.cache_resource
 def load_models_and_tokenizer():
-    # Load models
+    # Load the TensorFlow model
     model_1 = load_model('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_model.h5')
-    model_2 = load_model('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/another_model.h5')  # Adjust this path
-
-    # Load tokenizer
+    
+    # Load the Naive Bayes model
+    model_2 = joblib.load('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/naive_model.joblib')
+    
+    # Load the tokenizer for the TensorFlow model
     with open('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/tokenizer.pkl', 'rb') as handle:
         tokenizer = pickle.load(handle)
     
-    return model_1, model_2, tokenizer
+    # Load the TF-IDF vectorizer for the Naive Bayes model
+    vectorizer = joblib.load('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/vectorizer.joblib')
+    
+    return model_1, model_2, tokenizer, vectorizer
 
-# Load models and tokenizer only once
-model_1, model_2, tokenizer = load_models_and_tokenizer()
+# Load models, tokenizer, and vectorizer only once
+model_1, model_2, tokenizer, vectorizer = load_models_and_tokenizer()
 
-# Function to preprocess input text
-def preprocess_text(text):
+# Function to preprocess input text for the TensorFlow model
+def preprocess_text_for_tf(text):
     text_seq = tokenizer.texts_to_sequences([text])
     text_padded = pad_sequences(text_seq, maxlen=100)
     return text_padded
 
+# Function to preprocess input text for the Naive Bayes model
+def preprocess_text_for_nb(text):
+    return vectorizer.transform([text])
+
 # Function to predict sentiment
 def predict_sentiment(text):
-    preprocessed_text = preprocess_text(text)
-    prediction_1 = model_1.predict(preprocessed_text)[0][0]
-    prediction_2 = model_2.predict(preprocessed_text)[0][0]
+    preprocessed_text_tf = preprocess_text_for_tf(text)
+    preprocessed_text_nb = preprocess_text_for_nb(text)
+    
+    prediction_1 = model_1.predict(preprocessed_text_tf)[0][0]
+    prediction_2 = model_2.predict(preprocessed_text_nb)[0]
+    
     return prediction_1, prediction_2
 
 # Streamlit application
@@ -44,11 +57,11 @@ time_of_day = st.selectbox("Select the time of day:", ["Morning", "Afternoon", "
 if st.button("Predict Sentiment"):
     if text_input:
         pred_1, pred_2 = predict_sentiment(text_input)
-        st.write(f"### Model 1 Prediction:")
+        st.write(f"### TensorFlow Model Prediction:")
         st.write(f"Positive Sentiment: {pred_1*100:.2f}%")
         st.write(f"Negative Sentiment: {(1-pred_1)*100:.2f}%")
         
-        st.write(f"### Model 2 Prediction:")
+        st.write(f"### Naive Bayes Model Prediction:")
         st.write(f"Positive Sentiment: {pred_2*100:.2f}%")
         st.write(f"Negative Sentiment: {(1-pred_2)*100:.2f}%")
     else:
@@ -73,5 +86,3 @@ st.markdown("""
     }
     </style>
     """, unsafe_allow_html=True)
-
-

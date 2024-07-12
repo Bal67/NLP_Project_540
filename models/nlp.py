@@ -8,6 +8,7 @@ from tensorflow.python.keras.layers import Embedding, Dense, SpatialDropout1D
 from tensorflow.python.keras.layers import *
 from keras.preprocessing.sequence import pad_sequences
 from keras_preprocessing.text import Tokenizer
+import pickle
 
 sys.path.insert(0, '/content/drive/MyDrive/TextSentiment/NLP_Project_540/scripts/dataset.py')
 
@@ -37,7 +38,14 @@ def train_nlp_model():
     
     model.fit(X_train, y_train, epochs=5, batch_size=64, validation_data=(X_val, y_val), verbose=2)
     
-    model.save('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_model.h5')
+    #Save the model to Google Drive
+    model_save_path = ('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_model.h5')
+    model.save(model_save_path)
+
+    # Save the tokenizer to Google Drive
+    tokenizer_save_path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_tokenizer.pkl'
+    with open(tokenizer_save_path, 'wb') as handle:
+        pickle.dump(tokenizer, handle, protocol= pickle.HIGHEST_PROTOCOL)
 
     # Evaluate the model on the test set
     y_pred = (model.predict(X_test) > 0.5).astype("int32")
