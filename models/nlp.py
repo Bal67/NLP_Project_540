@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import Embedding, Dense, SpatialDropout1D
-from tensorflow.python.keras.layers import LSTM
+from tensorflow.python.keras.layers import *
 from keras_preprocessing.sequence import pad_sequences
 from keras_preprocessing.text import Tokenizer
 
