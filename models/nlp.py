@@ -26,6 +26,9 @@ def train_nlp_model():
     path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/data/preprocessed_dataset.csv'
     df = pd.read_csv(path)
 
+    # For testing, limit the size of the dataset
+    df = df.sample(frac=0.1, random_state=42)  # Use 10% of the data for testing
+
     # Ensure all entries in 'cleaned_tweet' are strings and handle missing values
     df['cleaned_tweet'] = df['cleaned_tweet'].astype(str).fillna('')
 
