@@ -86,6 +86,7 @@ def preprocess_dataset(df):
     #Apply Tweet Cleaning function to the 'tweet' column
     df['cleaned_tweet'] = df['tweet'].apply(tweet_cleaner)
 
+    print(df.head())
 
     return df
 
