@@ -52,11 +52,11 @@ st.markdown(
     .sidebar .sidebar-content {
         background: #f0f0f5;
     }
-    .stButton>button {
+    .stButton > button {
         background-color: #4CAF50;
         color: white;
     }
-    .stButton>button:hover {
+    .stButton > button:hover {
         background-color: #45a049;
     }
     </style>
