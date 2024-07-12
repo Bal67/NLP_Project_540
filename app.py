@@ -40,25 +40,3 @@ if st.button("Predict Sentiment"):
         st.write(f"### Naive Bayes Model Prediction: {sentiment}")
     else:
         st.error("Please enter some text to analyze.")
-
-# Make the app visually attractive
-st.markdown(
-    """
-    <style>
-    .reportview-container {
-        background: linear-gradient(to right, #ffffff, #e6e6e6);
-        color: #000000;
-    }
-    .sidebar .sidebar-content {
-        background: #f0f0f5;
-    }
-    .stButton > button {
-        background-color: #4CAF50;
-        color: white;
-    }
-    .stButton > button:hover {
-        background-color: #45a049;
-    }
-    </style>
-    """, unsafe_allow_html=True
-)
