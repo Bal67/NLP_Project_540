@@ -4,16 +4,22 @@ import numpy as np
 from tensorflow.keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
+import pickle
 
-# Load your models
-model_path_1 = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_model.h5'
-model_path_2 = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/another_model.h5'  # Adjust this path
-model_1 = load_model(model_path_1)
-model_2 = load_model(model_path_2)
+@st.cache_resource
+def load_models_and_tokenizer():
+    # Load models
+    model_1 = load_model('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_model.h5')
+    model_2 = load_model('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/another_model.h5')  # Adjust this path
 
-# Load your tokenizer
-tokenizer_path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/tokenizer.pkl'
-tokenizer = pd.read_pickle(tokenizer_path)
+    # Load tokenizer
+    with open('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/tokenizer.pkl', 'rb') as handle:
+        tokenizer = pickle.load(handle)
+    
+    return model_1, model_2, tokenizer
+
+# Load models and tokenizer only once
+model_1, model_2, tokenizer = load_models_and_tokenizer()
 
 # Function to preprocess input text
 def preprocess_text(text):
@@ -67,4 +73,5 @@ st.markdown("""
     }
     </style>
     """, unsafe_allow_html=True)
+
 
