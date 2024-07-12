@@ -4,7 +4,7 @@ import numpy as np
 import joblib
 
 @st.cache_resource
-def load_models_and_vectorizer():
+def load_model_and_vectorizer():
     # Load the Naive Bayes model
     model = joblib.load('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/naive_model.joblib')
     
@@ -14,7 +14,7 @@ def load_models_and_vectorizer():
     return model, vectorizer
 
 # Load model and vectorizer only once
-model, vectorizer = load_models_and_vectorizer()
+model, vectorizer = load_model_and_vectorizer()
 
 # Function to preprocess input text for the Naive Bayes model
 def preprocess_text(text):
@@ -23,15 +23,7 @@ def preprocess_text(text):
 # Function to predict sentiment
 def predict_sentiment(text):
     preprocessed_text = preprocess_text(text)
-    
-    # Debugging: Display shapes of preprocessed text
-    st.write(f"Shape of preprocessed_text: {preprocessed_text.shape}")
-
     prediction = model.predict(preprocessed_text)
-
-    # Debugging: Display prediction
-    st.write(f"Prediction: {prediction}")
-
     return prediction[0]
 
 # Streamlit application
