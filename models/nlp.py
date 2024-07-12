@@ -3,9 +3,9 @@ import sys
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
-from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.layers import Embedding, Dense, SpatialDropout1D
-from tensorflow.python.keras.layers import *
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding, Dense, SpatialDropout1D, LSTM
+from tensorflow.keras.optimizers import Adam
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 import pickle
@@ -20,7 +20,7 @@ def train_nlp_model():
 
     # Ensure all entries in 'cleaned_tweet' are strings and handle missing values
     df['cleaned_tweet'] = df['cleaned_tweet'].astype(str).fillna('')
-    
+
     X = df['cleaned_tweet']
     y = df['target']
     
@@ -38,7 +38,7 @@ def train_nlp_model():
     model.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2))
     model.add(Dense(1, activation='sigmoid'))
     
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy', optimizer=Adam(), metrics=['accuracy'])
     
     model.fit(X_train, y_train, epochs=5, batch_size=64, validation_data=(X_val, y_val), verbose=2)
     
