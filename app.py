@@ -42,7 +42,8 @@ if st.button("Predict Sentiment"):
         st.error("Please enter some text to analyze.")
 
 # Make the app visually attractive
-st.markdown("""
+st.markdown(
+    """
     <style>
     .reportview-container {
         background: linear-gradient(to right, #ffffff, #e6e6e6);
@@ -59,4 +60,5 @@ st.markdown("""
         background-color: #45a049;
     }
     </style>
-    """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True
+)
