@@ -41,12 +41,14 @@ def predict_sentiment(text):
     preprocessed_text_tf = preprocess_text_for_tf(text)
     preprocessed_text_nb = preprocess_text_for_nb(text)
     
+    # Debugging: Display shapes of preprocessed text
     st.write(f"Shape of preprocessed_text_tf: {preprocessed_text_tf.shape}")
     st.write(f"Shape of preprocessed_text_nb: {preprocessed_text_nb.shape}")
 
     prediction_1 = model_1.predict(preprocessed_text_tf)
     prediction_2 = model_2.predict(preprocessed_text_nb)
 
+    # Debugging: Display predictions
     st.write(f"Prediction from model_1: {prediction_1}")
     st.write(f"Prediction from model_2: {prediction_2}")
 
