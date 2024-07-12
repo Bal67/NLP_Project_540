@@ -27,19 +27,27 @@ def preprocess_text(text):
     try:
         text_seq = tokenizer.texts_to_sequences([text])
         text_padded = pad_sequences(text_seq, maxlen=100)
-        return text_padded
+        return text_paded
     except Exception as e:
         st.error(f"Error preprocessing text: {e}")
         return None
 
+# Map time of day to numerical values
+def map_time_of_day(time_of_day):
+    mapping = {'Morning': 0, 'Afternoon': 1, 'Evening': 2, 'Night': 3}
+    return mapping.get(time_of_day, 0)
+
 # Function to predict sentiment
-def predict_sentiment(text):
+def predict_sentiment(text, time_of_day):
     preprocessed_text = preprocess_text(text)
+    time_of_day_num = map_time_of_day(time_of_day)
+    time_of_day_array = np.array([[time_of_day_num]])
+
     if preprocessed_text is None:
         return None
 
     try:
-        prediction = model.predict(preprocessed_text)
+        prediction = model.predict([preprocessed_text, time_of_day_array])
         return prediction[0][0]
     except Exception as e:
         st.error(f"Error predicting sentiment: {e}")
@@ -65,7 +73,7 @@ if st.button("Predict Sentiment"):
     st.session_state["time_of_day"] = time_of_day
     
     if text_input:
-        prediction = predict_sentiment(text_input)
+        prediction = predict_sentiment(text_input, time_of_day)
         if prediction is not None:
             sentiment = "Positive" if prediction > 0.5 else "Negative"
             st.write(f"### NLP Model Prediction: {sentiment}")
