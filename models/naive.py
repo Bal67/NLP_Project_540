@@ -34,12 +34,12 @@ def train_non_fine_tuned_lstm_model():
     model = Sequential()
     model.add(Embedding(5000, 128, input_length=100))
     model.add(SpatialDropout1D(0.2))
-    model.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2))
+    model.add(LSTM(50, dropout=0.2, recurrent_dropout=0.2))  # Reduced LSTM units for faster training
     model.add(Dense(1, activation='sigmoid'))
     
     model.compile(loss='binary_crossentropy', optimizer=Adam(), metrics=['accuracy'])
     
-    model.fit(X_train, y_train, epochs=5, batch_size=64, validation_data=(X_val, y_val), verbose=2)
+    model.fit(X_train, y_train, epochs=3, batch_size=32, validation_data=(X_val, y_val), verbose=2)  # Reduced epochs and batch size for faster training
     
     # Save the tokenizer to Google Drive
     tokenizer_save_path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/non_fine_tuned_lstm_tokenizer.pkl'
@@ -52,7 +52,7 @@ def train_non_fine_tuned_lstm_model():
     print(classification_report(y_test, y_pred))
 
     # Save the model to Google Drive
-    model.save('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/non_fine_tuned_lstm_model.h5')
+    model.save('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/non_fine_tuned_lstm_model.keras')
         
     return model, tokenizer
 
