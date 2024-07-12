@@ -3,8 +3,9 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Embedding, Dense, SpatialDropout1D, LSTM
+from tensorflow.keras.layers import Embedding, Dense, SpatialDropout1D, LSTM, Input, Concatenate
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.models import Model
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 import numpy as np
@@ -32,20 +33,27 @@ def train_nlp_model():
 
     # Encode time of day
     X_time = np.array([encode_time_of_day(tod) for tod in df['time_of_day']])
-    X_combined = np.concatenate((X_padded, X_time), axis=1)
     
-    X_train, X_temp, y_train, y_temp = train_test_split(X_combined, df['target'], test_size=0.4, random_state=42)
-    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+    X_train_seq, X_temp_seq, y_train, y_temp = train_test_split(X_padded, df['target'], test_size=0.4, random_state=42)
+    X_val_seq, X_test_seq, y_val, y_test = train_test_split(X_temp_seq, y_temp, test_size=0.5, random_state=42)
     
-    model = Sequential()
-    model.add(Embedding(5000, 128, input_length=101))  # Adjust input length
-    model.add(SpatialDropout1D(0.2))
-    model.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2))
-    model.add(Dense(1, activation='sigmoid'))
+    X_train_time, X_temp_time = train_test_split(X_time, test_size=0.4, random_state=42)
+    X_val_time, X_test_time = train_test_split(X_temp_time, test_size=0.5, random_state=42)
     
+    input_text = Input(shape=(100,))
+    input_time = Input(shape=(1,))
+    
+    embedding = Embedding(5000, 128, input_length=100)(input_text)
+    dropout = SpatialDropout1D(0.2)(embedding)
+    lstm = LSTM(100, dropout=0.2, recurrent_dropout=0.2)(dropout)
+    
+    combined = Concatenate()([lstm, input_time])
+    output = Dense(1, activation='sigmoid')(combined)
+    
+    model = Model(inputs=[input_text, input_time], outputs=output)
     model.compile(loss='binary_crossentropy', optimizer=Adam(), metrics=['accuracy'])
     
-    model.fit(X_train, y_train, epochs=5, batch_size=64, validation_data=(X_val, y_val), verbose=2)
+    model.fit([X_train_seq, X_train_time], y_train, epochs=5, batch_size=64, validation_data=([X_val_seq, X_val_time], y_val), verbose=2)
     
     # Save the tokenizer to Google Drive
     tokenizer_save_path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_tokenizer.pkl'
@@ -53,7 +61,7 @@ def train_nlp_model():
         pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     # Evaluate the model on the test set
-    y_pred = (model.predict(X_test) > 0.5).astype("int32")
+    y_pred = (model.predict([X_test_seq, X_test_time]) > 0.5).astype("int32")
     print(f'NLP Model Accuracy: {accuracy_score(y_test, y_pred)}')
     print(classification_report(y_test, y_pred))
 

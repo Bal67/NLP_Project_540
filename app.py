@@ -45,10 +45,8 @@ def predict_sentiment(text, time_of_day):
 
     time_encoded = encode_time_of_day(time_of_day)
     
-    combined_input = np.concatenate((preprocessed_text, time_encoded), axis=1)
-
     try:
-        prediction = model.predict(combined_input)
+        prediction = model.predict([preprocessed_text, time_encoded])
         return prediction[0][0]
     except Exception as e:
         st.error(f"Error predicting sentiment: {e}")
