@@ -16,7 +16,7 @@ def load_models_and_tokenizer():
     model_2 = joblib.load('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/naive_model.joblib')
     
     # Load the tokenizer for the TensorFlow model
-    with open('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/tokenizer.pkl', 'rb') as handle:
+    with open('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_tokenizer.pkl', 'rb') as handle:
         tokenizer = pickle.load(handle)
     
     # Load the TF-IDF vectorizer for the Naive Bayes model
