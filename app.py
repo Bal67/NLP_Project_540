@@ -53,6 +53,11 @@ text_input = st.text_area("Enter your text here:")
 time_of_day = st.selectbox("Select the time of day:", ["Morning", "Afternoon", "Evening", "Night"])
 
 if st.button("Predict Sentiment"):
+
+    # Save input values to session state
+    st.session_state["text_input"] = text_input
+    st.session_state["time_of_day"] = time_of_day
+    
     if text_input:
         prediction = predict_sentiment(text_input)
         if prediction is not None:
