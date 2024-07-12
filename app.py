@@ -27,7 +27,7 @@ def preprocess_text(text):
     try:
         text_seq = tokenizer.texts_to_sequences([text])
         text_padded = pad_sequences(text_seq, maxlen=100)
-        return text_paded
+        return text_padded
     except Exception as e:
         st.error(f"Error preprocessing text: {e}")
         return None
