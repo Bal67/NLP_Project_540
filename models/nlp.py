@@ -5,7 +5,7 @@ from sklearn.metrics import accuracy_score, classification_report
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Embedding, Dense, SpatialDropout1D, LSTM
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
+from scikeras.wrappers import KerasClassifier
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 
