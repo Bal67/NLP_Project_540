@@ -2,76 +2,70 @@ import sys
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Embedding, Dense, SpatialDropout1D, LSTM
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Embedding, Dense, SpatialDropout1D, LSTM, Input, Concatenate
 from tensorflow.keras.optimizers import Adam
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
-from tensorflow.keras.callbacks import EarlyStopping
+import numpy as np
 import pickle
-import os
-import logging
-import tensorflow as tf
 
-# Suppress TensorFlow warnings
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-logging.getLogger('tensorflow').setLevel(logging.FATAL)
+sys.path.insert(0, '/content/drive/MyDrive/TextSentiment/NLP_Project_540/scripts')
+from dataset import preprocess_dataset
 
-sys.path.insert(0, '/content/drive/MyDrive/TextSentiment/NLP_Project_540/scripts/dataset.py')
-MODEL_FILE = "/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_model.h5"
+def encode_time_of_day(time_of_day):
+    time_mapping = {"morning": 0, "afternoon": 1, "evening": 2, "night": 3}
+    return np.array([time_mapping[time_of_day]])
 
-#Train the function
 def train_nlp_model():
     # Load and preprocess dataset
-    path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/data/preprocessed_dataset.csv'
+    path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/data/preprocessed_dataset.csv'  # Update with the correct path
     df = pd.read_csv(path)
-
-    # For testing, limit the size of the dataset
-    df = df.sample(frac=0.1, random_state=42)  # Use 10% of the data for testing
 
     # Ensure all entries in 'cleaned_tweet' are strings and handle missing values
     df['cleaned_tweet'] = df['cleaned_tweet'].astype(str).fillna('')
-
-    X = df['cleaned_tweet']
-    y = df['target']
     
-    #Adding a tokenizer
     tokenizer = Tokenizer(num_words=5000, lower=True)
-    tokenizer.fit_on_texts(X)
-    X_seq = tokenizer.texts_to_sequences(X)
+    tokenizer.fit_on_texts(df['cleaned_tweet'])
+    X_seq = tokenizer.texts_to_sequences(df['cleaned_tweet'])
     X_padded = pad_sequences(X_seq, maxlen=100)
+
+    # Encode time of day
+    X_time = np.array([encode_time_of_day(tod) for tod in df['time_of_day']])
     
-    #Splitting the data into training, validation, and test sets
-    X_train, X_temp, y_train, y_temp = train_test_split(X_padded, y, test_size=0.4, random_state=42)
-    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+    X_train_seq, X_temp_seq, y_train, y_temp = train_test_split(X_padded, df['target'], test_size=0.4, random_state=42)
+    X_val_seq, X_test_seq, y_val, y_test = train_test_split(X_temp_seq, y_temp, test_size=0.5, random_state=42)
     
-    #Building the model
-    model = Sequential()
-    model.add(Embedding(5000, 64, input_length=100))
-    model.add(SpatialDropout1D(0.2))
-    model.add(LSTM(64, dropout=0.2, recurrent_dropout=0.2))
-    model.add(Dense(1, activation='sigmoid'))
+    X_train_time, X_temp_time = train_test_split(X_time, test_size=0.4, random_state=42)
+    X_val_time, X_test_time = train_test_split(X_temp_time, test_size=0.5, random_state=42)
     
-    # Compiling the model
+    input_text = Input(shape=(100,), name='input_text')
+    input_time = Input(shape=(1,), name='input_time')
+    
+    embedding = Embedding(5000, 128, input_length=100)(input_text)
+    dropout = SpatialDropout1D(0.2)(embedding)
+    lstm = LSTM(100, dropout=0.2, recurrent_dropout=0.2)(dropout)
+    
+    combined = Concatenate()([lstm, input_time])
+    output = Dense(1, activation='sigmoid')(combined)
+    
+    model = Model(inputs=[input_text, input_time], outputs=output)
     model.compile(loss='binary_crossentropy', optimizer=Adam(), metrics=['accuracy'])
     
-    # Implement EarlyStopping
-    early_stopping = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+    model.fit([X_train_seq, X_train_time], y_train, epochs=5, batch_size=64, validation_data=([X_val_seq, X_val_time], y_val), verbose=2)
     
-    model.fit(X_train, y_train, epochs=10, batch_size=64, validation_data=(X_val, y_val), verbose=2, callbacks=[early_stopping])
-
     # Save the tokenizer to Google Drive
     tokenizer_save_path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_tokenizer.pkl'
     with open(tokenizer_save_path, 'wb') as handle:
         pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     # Evaluate the model on the test set
-    y_pred = (model.predict(X_test) > 0.5).astype("int32")
+    y_pred = (model.predict([X_test_seq, X_test_time]) > 0.5).astype("int32")
     print(f'NLP Model Accuracy: {accuracy_score(y_test, y_pred)}')
     print(classification_report(y_test, y_pred))
 
     # Save the model to Google Drive
-    model.save(MODEL_FILE)
+    model.save('/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_model.h5')
         
     return model, tokenizer
 
