@@ -48,7 +48,7 @@ def tweet_cleaner(text):
     tokens = [stemmer.stem(word) for word in text.split() if word not in stop_words and len(word) >= 3]
     return " ".join(tokens)
 
-
+# Define function to get time of day
 def get_time_of_day(time):
     """Classify time into time of day."""
     hour = time.hour

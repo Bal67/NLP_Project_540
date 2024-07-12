@@ -22,9 +22,11 @@ def train_naive_model():
     vectorizer = TfidfVectorizer()
     X_vect = vectorizer.fit_transform(X)
     
+    #Splitting the data into training, validation, and test sets
     X_train, X_temp, y_train, y_temp = train_test_split(X_vect, y, test_size=0.4, random_state=42)
     X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
     
+    #Building the model
     model = MultinomialNB()
     model.fit(X_train, y_train)
 
@@ -38,7 +40,7 @@ def train_naive_model():
     print(f'Naive Bayes Model Accuracy: {accuracy_score(y_test, y_pred)}')
     print(classification_report(y_test, y_pred))
 
-    
+    # Save the model and vectorizer
     joblib.dump(model, '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/naive_model.joblib')
     joblib.dump(vectorizer, '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/vectorizer.joblib')
 

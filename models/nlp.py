@@ -20,6 +20,7 @@ logging.getLogger('tensorflow').setLevel(logging.FATAL)
 sys.path.insert(0, '/content/drive/MyDrive/TextSentiment/NLP_Project_540/scripts/dataset.py')
 MODEL_FILE = "/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_model.h5"
 
+#Train the function
 def train_nlp_model():
     # Load and preprocess dataset
     path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/data/preprocessed_dataset.csv'
@@ -34,20 +35,24 @@ def train_nlp_model():
     X = df['cleaned_tweet']
     y = df['target']
     
+    #Adding a tokenizer
     tokenizer = Tokenizer(num_words=5000, lower=True)
     tokenizer.fit_on_texts(X)
     X_seq = tokenizer.texts_to_sequences(X)
     X_padded = pad_sequences(X_seq, maxlen=100)
     
+    #Splitting the data into training, validation, and test sets
     X_train, X_temp, y_train, y_temp = train_test_split(X_padded, y, test_size=0.4, random_state=42)
     X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
     
+    #Building the model
     model = Sequential()
     model.add(Embedding(5000, 64, input_length=100))
     model.add(SpatialDropout1D(0.2))
     model.add(LSTM(64, dropout=0.2, recurrent_dropout=0.2))
     model.add(Dense(1, activation='sigmoid'))
     
+    # Compiling the model
     model.compile(loss='binary_crossentropy', optimizer=Adam(), metrics=['accuracy'])
     
     # Implement EarlyStopping
