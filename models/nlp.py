@@ -1,4 +1,3 @@
-
 import sys
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -26,6 +25,9 @@ def train_nlp_model():
     path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/data/preprocessed_dataset.csv'
     df = pd.read_csv(path)
 
+    # For testing, limit the size of the dataset
+    df = df.sample(frac=0.1, random_state=42)  # Use 10% of the data for testing
+
     # Ensure all entries in 'cleaned_tweet' are strings and handle missing values
     df['cleaned_tweet'] = df['cleaned_tweet'].astype(str).fillna('')
 
@@ -41,9 +43,9 @@ def train_nlp_model():
     X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
     
     model = Sequential()
-    model.add(Embedding(5000, 128, input_length=100))
+    model.add(Embedding(5000, 64, input_length=100))
     model.add(SpatialDropout1D(0.2))
-    model.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2))
+    model.add(LSTM(64, dropout=0.2, recurrent_dropout=0.2))
     model.add(Dense(1, activation='sigmoid'))
     
     model.compile(loss='binary_crossentropy', optimizer=Adam(), metrics=['accuracy'])
@@ -51,7 +53,7 @@ def train_nlp_model():
     # Implement EarlyStopping
     early_stopping = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
     
-    model.fit(X_train, y_train, epochs=10, batch_size=64, validation_data=(X_val, y_val), verbose=2, callbacks=[early_stopping])
+    model.fit(X_train, y_train, epochs=5, batch_size=32, validation_data=(X_val, y_val), verbose=2, callbacks=[early_stopping])
 
     # Save the tokenizer to Google Drive
     tokenizer_save_path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/nlp_tokenizer.pkl'
