@@ -20,26 +20,29 @@ def train_non_fine_tuned_lstm_model():
     # Ensure all entries in 'cleaned_tweet' are strings and handle missing values
     df['cleaned_tweet'] = df['cleaned_tweet'].astype(str).fillna('')
 
+    # Use a smaller subset for quick testing
+    df = df.sample(5000, random_state=42)
+
     X = df['cleaned_tweet']
     y = df['target']
     
     tokenizer = Tokenizer(num_words=5000, lower=True)
     tokenizer.fit_on_texts(X)
     X_seq = tokenizer.texts_to_sequences(X)
-    X_padded = pad_sequences(X_seq, maxlen=100)
+    X_padded = pad_sequences(X_seq, maxlen=50)  # Reduced maxlen for faster processing
     
     X_train, X_temp, y_train, y_temp = train_test_split(X_padded, y, test_size=0.4, random_state=42)
     X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
     
     model = Sequential()
-    model.add(Embedding(5000, 128, input_length=100))
+    model.add(Embedding(5000, 64, input_length=50))  # Reduced embedding size
     model.add(SpatialDropout1D(0.2))
-    model.add(LSTM(50, dropout=0.2, recurrent_dropout=0.2))  # Reduced LSTM units for faster training
+    model.add(LSTM(32, dropout=0.2, recurrent_dropout=0.2))  # Further reduced LSTM units
     model.add(Dense(1, activation='sigmoid'))
     
     model.compile(loss='binary_crossentropy', optimizer=Adam(), metrics=['accuracy'])
     
-    model.fit(X_train, y_train, epochs=3, batch_size=32, validation_data=(X_val, y_val), verbose=2)  # Reduced epochs and batch size for faster training
+    model.fit(X_train, y_train, epochs=2, batch_size=32, validation_data=(X_val, y_val), verbose=2)  # Reduced epochs for faster training
     
     # Save the tokenizer to Google Drive
     tokenizer_save_path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/models/non_fine_tuned_lstm_tokenizer.pkl'
