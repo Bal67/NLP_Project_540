@@ -22,9 +22,16 @@ def preprocess_text(text):
 
 # Function to predict sentiment
 def predict_sentiment(text):
-    preprocessed_text = preprocess_text(text)
-    prediction = model.predict(preprocessed_text)
-    return prediction[0]
+    try:
+        st.write("Preprocessing text...")
+        preprocessed_text = preprocess_text(text)
+        st.write("Predicting sentiment...")
+        prediction = model.predict(preprocessed_text)
+        st.write("Prediction complete.")
+        return prediction[0]
+    except Exception as e:
+        st.error(f"Error in predict_sentiment: {e}")
+        raise
 
 # Streamlit application
 st.title("Sentiment Analysis Application")
@@ -35,8 +42,11 @@ time_of_day = st.selectbox("Select the time of day:", ["Morning", "Afternoon", "
 
 if st.button("Predict Sentiment"):
     if text_input:
-        prediction = predict_sentiment(text_input)
-        sentiment = "Positive" if prediction == 1 else "Negative"
-        st.write(f"### Naive Bayes Model Prediction: {sentiment}")
+        try:
+            prediction = predict_sentiment(text_input)
+            sentiment = "Positive" if prediction == 1 else "Negative"
+            st.write(f"### Naive Bayes Model Prediction: {sentiment}")
+        except Exception as e:
+            st.error(f"An error occurred during prediction: {e}")
     else:
         st.error("Please enter some text to analyze.")
