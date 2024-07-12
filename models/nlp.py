@@ -6,7 +6,7 @@ from sklearn.metrics import accuracy_score, classification_report
 from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import Embedding, Dense, SpatialDropout1D
 from tensorflow.python.keras.layers import *
-from keras_preprocessing.sequence import *
+from keras.preprocessing.sequence import pad_sequences
 from keras_preprocessing.text import Tokenizer
 
 sys.path.insert(0, '/content/drive/MyDrive/TextSentiment/NLP_Project_540/scripts/dataset.py')
