@@ -18,6 +18,9 @@ def train_nlp_model():
     path = '/content/drive/MyDrive/TextSentiment/NLP_Project_540/data/preprocessed_dataset.csv'  # Update with the correct path
     df = pd.read_csv(path)
 
+    # Ensure all entries in 'cleaned_tweet' are strings and handle missing values
+    df['cleaned_tweet'] = df['cleaned_tweet'].astype(str).fillna('')
+    
     X = df['cleaned_tweet']
     y = df['target']
     
