@@ -48,7 +48,7 @@ def tweet_cleaner(text):
     tokens = [stemmer.stem(word) for word in text.split() if word not in stop_words and len(word) >= 3]
     return " ".join(tokens)
 
-
+# Define function to get time of day
 def get_time_of_day(time):
     """Classify time into time of day."""
     hour = time.hour
@@ -86,6 +86,7 @@ def preprocess_dataset(df):
     #Apply Tweet Cleaning function to the 'tweet' column
     df['cleaned_tweet'] = df['tweet'].apply(tweet_cleaner)
 
+    print(df.head())
 
     return df
 
