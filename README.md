@@ -7,6 +7,8 @@ Google Colab: https://colab.research.google.com/drive/1ojBnhAwkWIASMqb0XgJRBeKZC
 
 Kaggle Dataset: https://www.kaggle.com/datasets/kazanova/sentiment140/code
 
+Youtube Link: https://youtu.be/gFWN2ajFw8k
+
 This project classifies whether a textual response is positive or negative based on what time of day it is (Morning, Afternoon, Evening, and Night). The models used are a fine-tuned LSTM-based Neural Network and a non-fine-tuned LSTM model.
 
 
